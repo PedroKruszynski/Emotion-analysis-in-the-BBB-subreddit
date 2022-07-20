@@ -1,0 +1,12 @@
+version: '3'
+services:
+  mongo:
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=tcc
+      - MONGO_INITDB_ROOT_PASSWORD=tcc
+      - MONGO_INITDB_DATABASE=tcc
+    expose:
+      - '27017'
+    ports:
+      - '27017:27017'

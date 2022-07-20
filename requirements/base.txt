@@ -1,0 +1,5 @@
+pymongo==4.1.1
+python-dotenv==0.19.1
+dnspython==2.2.1
+praw==7.6.0
+pandas==1.4.3
