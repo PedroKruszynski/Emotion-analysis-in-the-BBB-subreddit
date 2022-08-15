@@ -27,8 +27,9 @@ reddit_dataset$comment <- tolower(reddit$comment)
 stopwords <- read.delim2(file = "~/Documents/TCC_project/DataAnalysis/stopwords.txt", sep = ",", header = FALSE, encoding = "UTF-8")
 
 pathByBrother <- '~/Documents/TCC_project/DataAnalysis/Plots/ByBrother/'
-createBar <- function(dataset, name) {
-  png(sprintf('%sSentiment Analysis: %s.png', pathByBrother, name))
+pathByEliminations <- '~/Documents/TCC_project/DataAnalysis/Plots/ByEliminations/'
+createBar <- function(dataset, name, path) {
+  png(sprintf('%sSentiment Analysis: %s.png', path, name))
   barplot(
     colSums(dataset),
     las = 2,
@@ -39,29 +40,88 @@ createBar <- function(dataset, name) {
   dev.off()
 }
 
-daysWithEliminations <- c(
-  c('25/01', 'Luciano', 'Eliminated'),
-  c('01/02', 'Rodrigo', 'Eliminated'),
-  c('07/02', 'Maria', 'Out by aggression'),
-  c('08/02', 'Naiara', 'Eliminated'),
-  c('15/02', 'Bárbara', 'Eliminated'),
-  c('22/02', 'Brunna', 'Eliminated'),
-  c('27/02', 'Tiago', 'Give up'),
-  c('01/03', 'Larissa', 'Eliminated'),
-  c('08/03', 'Jade', 'Eliminated'),
-  c('15/03', 'Vinicius', 'Eliminated'),
-  c('22/03', 'Lais', 'Eliminated'),
-  c('29/03', 'Lucas', 'Eliminated'),
-  c('03/04', 'Eslovênia', 'Eliminated'),
-  c('11/04', 'Linn', 'Eliminated'),
-  c('12/04', 'Natalia', 'Eliminated'),
-  c('18/04', 'Jessilane', 'Eliminated'),
-  c('17/04', 'Eliezer', 'Eliminated'),
-  c('19/04', 'Gustavo', 'Eliminated'),
-  c('21/04', 'Pedro', 'Eliminated')
+daysWithEliminations <- data.frame(
+  dayOfElimination=c(
+    '2022-01-25',
+    '2022-02-01',
+    '2022-02-07',
+    '2022-02-08',
+    '2022-02-15',
+    '2022-02-22',
+    '2022-02-27',
+    '2022-03-01',
+    '2022-03-08',
+    '2022-03-15',
+    '2022-03-22',
+    '2022-03-29',
+    '2022-04-03',
+    '2022-04-11',
+    '2022-04-12',
+    '2022-04-18',
+    '2022-04-17',
+    '2022-04-19',
+    '2022-04-21'
+  ),
+  eliminated=c(
+    'Luciano',
+    'Rodrigo',
+    'Maria',
+    'Naiara',
+    'Bárbara',
+    'Brunna',
+    'Tiago',
+    'Larissa',
+    'Jade',
+    'Vinicius',
+    'Lais',
+    'Lucas',
+    'Eslovênia',
+    'Linn',
+    'Natalia',
+    'Jessilane',
+    'Eliezer',
+    'Gustavo',
+    'Pedro'
+  ),
+  reason=c(
+    'Eliminated',
+    'Eliminated',
+    'Out by aggression',
+    'Eliminated',
+    'Eliminated',
+    'Eliminated',
+    'Give up',
+    'Eliminated',
+    'Eliminated',
+    'Eliminated',
+    'Eliminated',
+    'Eliminated',
+    'Eliminated',
+    'Eliminated',
+    'Eliminated',
+    'Eliminated',
+    'Eliminated',
+    'Eliminated',
+    'Eliminated'
+  )
 )
 
-#corpus_comment <- Corpus(VectorSource(tolower(reddit_dataset$comment)))
+redditEliminations <- reddit_dataset %>%
+  filter(
+    as.Date(as.POSIXct(created, origin='1970-01-01', tz='UTC')) %in% as.Date(daysWithEliminations$dayOfElimination)
+  ) %>% 
+  filter(
+    title == 'DISCUSSÃO DIÁRIA - BBB22'
+  ) %>% 
+  group_split(created)
+
+for (i in redditEliminations) {
+  createBar(
+    get_nrc_sentiment(i$comment, lang = "portuguese"),
+    sprintf('%s - %s', i$title[1], as.Date(as.POSIXct(i$created[1], origin='1970-01-01', tz='UTC'))),
+    pathByEliminations
+  )
+}
 
 jadeComments = reddit_dataset %>% filter(grepl('jade|picon', comment))
 arthurComments = reddit_dataset %>% filter(grepl('arthur|aguiar', comment))
@@ -109,25 +169,25 @@ analyzeNatalia <- get_nrc_sentiment(nataliaComments$comment, lang = "portuguese"
 analyzeGustavo <- get_nrc_sentiment(gustavoComments$comment, lang = "portuguese")
 analyzeLarissa <- get_nrc_sentiment(larissaComments$comment, lang = "portuguese")
 
-createBar(analyzeJade, 'Jade')
-createBar(analyzeArthur, 'Arthur')
-createBar(analyzeTiago, 'Tiago')
-createBar(analyzeNaiara, 'Naiara')
-createBar(analyzeLinn, 'Linn')
-createBar(analyzeMaria, 'Maria')
-createBar(analyzeDouglas, 'Douglas')
-createBar(analyzePaulo, 'Paulo')
-createBar(analyzeBrunna, 'Brunna')
-createBar(analyzePedro, 'Pedro')
-createBar(analyzeLais, 'Láis')
-createBar(analyzeLuciano, 'Luciano')
-createBar(analyzeJessilane, 'Jessilane')
-createBar(analyzeEliezer, 'Eliezer')
-createBar(analyzeEslovenia, 'Eslovênia')
-createBar(analyzeLucas, 'Lucas')
-createBar(analyzeBarbara, 'Bárbara')
-createBar(analyzeRodrigo, 'Rodrigo')
-createBar(analyzeVinicius, 'Vinicius')
-createBar(analyzeNatalia, 'Natalia')
-createBar(analyzeGustavo, 'Gustavo')
-createBar(analyzeLarissa, 'Larissa')
+createBar(analyzeJade, 'Jade', pathByBrother)
+createBar(analyzeArthur, 'Arthur', pathByBrother)
+createBar(analyzeTiago, 'Tiago', pathByBrother)
+createBar(analyzeNaiara, 'Naiara', pathByBrother)
+createBar(analyzeLinn, 'Linn', pathByBrother)
+createBar(analyzeMaria, 'Maria', pathByBrother)
+createBar(analyzeDouglas, 'Douglas', pathByBrother)
+createBar(analyzePaulo, 'Paulo', pathByBrother)
+createBar(analyzeBrunna, 'Brunna', pathByBrother)
+createBar(analyzePedro, 'Pedro', pathByBrother)
+createBar(analyzeLais, 'Láis', pathByBrother)
+createBar(analyzeLuciano, 'Luciano', pathByBrother)
+createBar(analyzeJessilane, 'Jessilane', pathByBrother)
+createBar(analyzeEliezer, 'Eliezer', pathByBrother)
+createBar(analyzeEslovenia, 'Eslovênia', pathByBrother)
+createBar(analyzeLucas, 'Lucas', pathByBrother)
+createBar(analyzeBarbara, 'Bárbara', pathByBrother)
+createBar(analyzeRodrigo, 'Rodrigo', pathByBrother)
+createBar(analyzeVinicius, 'Vinicius', pathByBrother)
+createBar(analyzeNatalia, 'Natalia', pathByBrother)
+createBar(analyzeGustavo, 'Gustavo', pathByBrother)
+createBar(analyzeLarissa, 'Larissa', pathByBrother)
