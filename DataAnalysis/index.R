@@ -3,6 +3,7 @@ install.packages("slam")
 install.packages("NLP")
 install.packages("tm", dependencies = TRUE)
 install.packages("wordcloud")
+install.packages("stringr")
 
 install.packages("syuzhet")
 install.packages("lubridate")
@@ -13,6 +14,7 @@ install.packages("reshape2")
 library(dplyr)
 library(tm)
 library(wordcloud)
+library("stringr")
 
 library(syuzhet)
 library(lubridate)
@@ -60,7 +62,8 @@ daysWithEliminations <- data.frame(
     '2022-04-18',
     '2022-04-17',
     '2022-04-19',
-    '2022-04-21'
+    '2022-04-21',
+    '2022-04-26'
   ),
   eliminated=c(
     'Luciano',
@@ -81,7 +84,8 @@ daysWithEliminations <- data.frame(
     'Jessilane',
     'Eliezer',
     'Gustavo',
-    'Pedro'
+    'Pedro',
+    'Douglas, Paulo'
   ),
   reason=c(
     'Eliminated',
@@ -102,7 +106,8 @@ daysWithEliminations <- data.frame(
     'Eliminated',
     'Eliminated',
     'Eliminated',
-    'Eliminated'
+    'Eliminated',
+    'Out by challenge'
   )
 )
 
@@ -111,7 +116,9 @@ redditEliminations <- reddit_dataset %>%
     as.Date(as.POSIXct(created, origin='1970-01-01', tz='UTC')) %in% as.Date(daysWithEliminations$dayOfElimination)
   ) %>% 
   filter(
-    title == 'DISCUSSÃO DIÁRIA - BBB22'
+    str_detect(
+      title, regex('DISCUSSÃO DIÁRIA', ignore_case = TRUE)
+    )
   ) %>% 
   group_split(created)
 
