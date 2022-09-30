@@ -19,11 +19,7 @@ class RedditApi:
 
     def begin_the_mess(self):
         topics = []
-        # title
-        # name
-        # id
-        # permalink
-        # created_utc
+
         for submission in self.subreddit.top(time_filter="year"):
             topic_id = reddit_api.database.insert_topic({
                 "external_id": submission.id,
@@ -33,10 +29,6 @@ class RedditApi:
             })
             submission.comments.replace_more(limit=0)
             for top_level_comment in submission.comments.list():
-                # id
-                # likes
-                # author
-                # body
                 reddit_api.database.insert_comment({
                     "topic_id": topic_id,
                     "author": (
